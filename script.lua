@@ -1,142 +1,8 @@
--- ============================================
--- ⚔ BEN HUB — Заставка + Chams Script
--- ============================================
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")
-
--- ============ ЭКРАН ЗАГРУЗКИ ============
-local oldLoading = playerGui:FindFirstChild("BenHubLoading")
-if oldLoading then oldLoading:Destroy() end
-
-local loadingGui = Instance.new("ScreenGui")
-loadingGui.Name = "BenHubLoading"
-loadingGui.ResetOnSpawn = false
-loadingGui.IgnoreGuiInset = true
-loadingGui.DisplayOrder = 999
-loadingGui.Parent = playerGui
-
-local bg = Instance.new("Frame")
-bg.Size = UDim2.new(1, 0, 1, 0)
-bg.BackgroundColor3 = Color3.fromRGB(10, 8, 18)
-bg.BackgroundTransparency = 1
-bg.BorderSizePixel = 0
-bg.Parent = loadingGui
-
-TweenService:Create(bg, TweenInfo.new(0.4), {BackgroundTransparency = 0.3}):Play()
-
-local container = Instance.new("Frame")
-container.Size = UDim2.new(0, 300, 0, 180)
-container.Position = UDim2.new(0.5, -150, 0.5, -90)
-container.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-container.BackgroundTransparency = 0.05
-container.BorderSizePixel = 0
-container.Parent = loadingGui
-Instance.new("UICorner", container).CornerRadius = UDim.new(0, 16)
-
-local containerStroke = Instance.new("UIStroke")
-containerStroke.Color = Color3.fromRGB(120, 80, 255)
-containerStroke.Thickness = 2
-containerStroke.Transparency = 0.2
-containerStroke.Parent = container
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 60)
-title.Position = UDim2.new(0, 0, 0, 20)
-title.BackgroundTransparency = 1
-title.Text = "⚔ BEN HUB"
-title.TextColor3 = Color3.fromRGB(220, 180, 255)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 32
-title.TextTransparency = 1
-title.Parent = container
-
-TweenService:Create(title, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-
-local subtitle = Instance.new("TextLabel")
-subtitle.Size = UDim2.new(1, 0, 0, 20)
-subtitle.Position = UDim2.new(0, 0, 0, 75)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "Loading..."
-subtitle.TextColor3 = Color3.fromRGB(160, 140, 200)
-subtitle.Font = Enum.Font.GothamMedium
-subtitle.TextSize = 13
-subtitle.TextTransparency = 1
-subtitle.Parent = container
-
-TweenService:Create(subtitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-
-local barBg = Instance.new("Frame")
-barBg.Size = UDim2.new(1, -60, 0, 10)
-barBg.Position = UDim2.new(0, 30, 1, -50)
-barBg.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
-barBg.BorderSizePixel = 0
-barBg.Parent = container
-Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
-
-local barFill = Instance.new("Frame")
-barFill.Size = UDim2.new(0, 0, 1, 0)
-barFill.BackgroundColor3 = Color3.fromRGB(120, 80, 255)
-barFill.BorderSizePixel = 0
-barFill.Parent = barBg
-Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
-
-local barGlow = Instance.new("Frame")
-barGlow.Size = UDim2.new(0, 40, 1, 0)
-barGlow.Position = UDim2.new(1, -40, 0, 0)
-barGlow.BackgroundColor3 = Color3.fromRGB(200, 160, 255)
-barGlow.BackgroundTransparency = 0.3
-barGlow.BorderSizePixel = 0
-barGlow.Parent = barFill
-Instance.new("UICorner", barGlow).CornerRadius = UDim.new(1, 0)
-
-local percentLbl = Instance.new("TextLabel")
-percentLbl.Size = UDim2.new(1, 0, 0, 18)
-percentLbl.Position = UDim2.new(0, 0, 1, -25)
-percentLbl.BackgroundTransparency = 1
-percentLbl.Text = "0%"
-percentLbl.TextColor3 = Color3.fromRGB(200, 180, 255)
-percentLbl.Font = Enum.Font.GothamBold
-percentLbl.TextSize = 12
-percentLbl.Parent = container
-
-local steps = {
-    {percent = 20, text = "Загрузка интерфейса..."},
-    {percent = 45, text = "Инициализация чамсов..."},
-    {percent = 70, text = "Настройка маркеров..."},
-    {percent = 90, text = "Почти готово..."},
-    {percent = 100, text = "Готово! ⚔"},
-}
-
-for i, step in ipairs(steps) do
-    task.wait(0.35)
-    subtitle.Text = step.text
-    local targetSize = UDim2.new(step.percent / 100, 0, 1, 0)
-    TweenService:Create(barFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = targetSize}):Play()
-    percentLbl.Text = step.percent .. "%"
-end
-
-task.wait(0.6)
-
-TweenService:Create(container, TweenInfo.new(0.5), {
-    BackgroundTransparency = 1,
-    Position = UDim2.new(0.5, -150, 0.5, -110)
-}):Play()
-TweenService:Create(containerStroke, TweenInfo.new(0.5), {Transparency = 1}):Play()
-TweenService:Create(title, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-TweenService:Create(subtitle, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-TweenService:Create(percentLbl, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-TweenService:Create(barBg, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-TweenService:Create(barFill, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-TweenService:Create(barGlow, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-
-task.wait(0.6)
-loadingGui:Destroy()
-
--- ============ ОСНОВНОЙ СКРИПТ BEN HUB ============
 
 local COLORS = {
     Player     = Color3.fromRGB(255, 60, 60),
@@ -576,4 +442,97 @@ local btnDragging, btnDragStart, btnStartPos = false, nil, nil
 local btnMoved = false
 
 toggleBtn.InputBegan:Connect(function(input)
-    if input.Us
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        btnDragging = true
+        btnMoved = false
+        btnDragStart = input.Position
+        btnStartPos = toggleBtn.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if btnDragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch) then
+        local d = input.Position - btnDragStart
+        if math.abs(d.X) > 5 or math.abs(d.Y) > 5 then
+            btnMoved = true
+        end
+        toggleBtn.Position = UDim2.new(btnStartPos.X.Scale, btnStartPos.X.Offset + d.X, btnStartPos.Y.Scale, btnStartPos.Y.Offset + d.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        btnDragging = false
+    end
+end)
+
+minBtn.MouseButton1Click:Connect(function()
+    local mPos = main.Position
+    main.Visible = false
+    toggleBtn.Position = UDim2.new(mPos.X.Scale, mPos.X.Offset, mPos.Y.Scale, mPos.Y.Offset)
+    toggleBtn.Visible = true
+end)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    if btnMoved then return end
+    local bPos = toggleBtn.Position
+    toggleBtn.Visible = false
+    main.Position = UDim2.new(bPos.X.Scale, bPos.X.Offset, bPos.Y.Scale, bPos.Y.Offset)
+    main.Visible = true
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    removeAllChams()
+    screenGui:Destroy()
+end)
+
+workspace.DescendantAdded:Connect(function(obj)
+    if obj:IsA("Model") then task.defer(updateModel, obj) end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(3)
+        for m, d in pairs(activeChams) do
+            if not m.Parent then
+                activeChams[m] = nil
+                droneMarkers[m] = nil
+            elseif not d.highlight or not d.highlight.Parent then
+                local color = COLORS[d.type]
+                if color then
+                    local h = Instance.new("Highlight")
+                    h.Name = "ChamsHighlight"
+                    h.FillColor = color
+                    h.OutlineColor = color
+                    h.FillTransparency = TRANSPARENCY
+                    h.OutlineTransparency = 0.1
+                    h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    h.Adornee = m
+                    h.Parent = m
+                    d.highlight = h
+                end
+            end
+        end
+        if state.Drone then
+            for m, d in pairs(activeChams) do
+                if d.type == "Drone" and m.Parent then
+                    if not droneMarkers[m] then applyDroneMarker(m) end
+                end
+            end
+        end
+        if tick() % 10 < 3 then rescanAll() end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.3)
+        updateDroneMarkerDistances()
+    end
+end)
+
+task.wait(1)
+rescanAll()
