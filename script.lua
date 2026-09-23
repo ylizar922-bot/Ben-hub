@@ -10,6 +10,7 @@ local COLORS = {
     MyDrone    = Color3.fromRGB(60, 255, 60),
     Gazel      = Color3.fromRGB(180, 60, 255),
     Leaderboard = Color3.fromRGB(0, 150, 255),
+    DroneDist  = Color3.fromRGB(255, 130, 0),
 }
 local TRANSPARENCY = 0.5
 local DRONE_MARKER_SHOW_DISTANCE = 1500
@@ -24,7 +25,11 @@ local LEADERBOARD_KEYWORDS = {
 }
 local MY_NAMES = {"benmaster505", "benmaster", "benloniks", "benlonik"}
 
-local state = { Player = false, Drone = true, MyDrone = false, Gazel = true, Leaderboard = false }
+-- ДОБАВЛЕНО: drone_dist
+local state = {
+    Player = false, Drone = true, MyDrone = false, Gazel = true, Leaderboard = false,
+    drone_dist = true
+}
 local activeChams = {}
 local droneMarkers = {}
 
@@ -46,7 +51,7 @@ local function applyDroneMarker(model)
     bb.MaxDistance = DRONE_MARKER_MAX_DISTANCE
     bb.LightInfluence = 0
     bb.Adornee = basePart
-    bb.Enabled = false
+    bb.Enabled = state.drone_dist
     bb.Parent = basePart
 
     local distLbl = Instance.new("TextLabel")
@@ -83,7 +88,7 @@ local function updateDroneMarkerDistances()
             local pivot = model:GetPivot().Position
             local dist = (myPos - pivot).Magnitude
             m.label.Text = tostring(math.floor(dist))
-            m.gui.Enabled = dist <= DRONE_MARKER_SHOW_DISTANCE
+            m.gui.Enabled = state.drone_dist and dist <= DRONE_MARKER_SHOW_DISTANCE
         end
     end
 end
@@ -159,6 +164,15 @@ local function isMyDrone(model)
     return false
 end
 
+local function isDroneModel(model)
+    if not model or not model:IsA("Model") then return false end
+    local nm = model.Name:lower()
+    for _, kw in ipairs(DRONE_KEYWORDS) do
+        if string.find(nm, kw) then return true end
+    end
+    return false
+end
+
 local function isLeaderboardModel(model)
     local nm = model.Name:lower()
     if LEADERBOARD_NAME ~= "" then
@@ -209,6 +223,16 @@ local function rescanAll()
     end
 end
 
+-- Сканирует всех Шахедов и вешает маркер (для тумблера дистанции)
+local function scanDroneDistances()
+    if not state.drone_dist then return end
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and isDroneModel(obj) and not isMyDrone(obj) then
+            if not droneMarkers[obj] then applyDroneMarker(obj) end
+        end
+    end
+end
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "BenHubGui"
 screenGui.ResetOnSpawn = false
@@ -216,8 +240,8 @@ screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.IgnoreGuiInset = true
 screenGui.Parent = playerGui
 
-local MENU_WIDTH = 360
-local MENU_HEIGHT = 340
+local MENU_WIDTH = 400
+local MENU_HEIGHT = 380
 
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, MENU_WIDTH, 0, MENU_HEIGHT)
@@ -304,13 +328,13 @@ contentHolder.BackgroundTransparency = 1
 contentHolder.Parent = main
 
 local pageLayout = Instance.new("UIListLayout")
-pageLayout.Padding = UDim.new(0, 5)
+pageLayout.Padding = UDim.new(0, 4)
 pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
 pageLayout.Parent = contentHolder
 
 local function createToggle(text, key, color, order)
     local row = Instance.new("TextButton")
-    row.Size = UDim2.new(1, 0, 0, 40)
+    row.Size = UDim2.new(1, 0, 0, 36)
     row.BackgroundColor3 = Color3.fromRGB(32, 32, 42)
     row.BorderSizePixel = 0
     row.Text = ""
@@ -345,8 +369,8 @@ local function createToggle(text, key, color, order)
     lbl.Parent = row
 
     local status = Instance.new("TextLabel")
-    status.Size = UDim2.new(0, 50, 0, 24)
-    status.Position = UDim2.new(1, -58, 0.5, -12)
+    status.Size = UDim2.new(0, 50, 0, 22)
+    status.Position = UDim2.new(1, -58, 0.5, -11)
     status.Text = "ВЫКЛ"
     status.Font = Enum.Font.GothamBold
     status.TextSize = 11
@@ -373,17 +397,27 @@ local function createToggle(text, key, color, order)
     row.MouseButton1Click:Connect(function()
         state[key] = not state[key]
         refresh()
-        if state[key] then rescanAll() else removeChamsByType(key) end
+        if key == "drone_dist" then
+            -- тумблер дистанции Шахедов
+            if state.drone_dist then
+                scanDroneDistances()
+            else
+                for m in pairs(droneMarkers) do removeDroneMarker(m) end
+            end
+        else
+            if state[key] then rescanAll() else removeChamsByType(key) end
+        end
     end)
 
     refresh()
 end
 
-createToggle("Игроки",     "Player",      COLORS.Player,      1)
-createToggle("Шахеды",     "Drone",       COLORS.Drone,       2)
-createToggle("Мой Шахед",  "MyDrone",     COLORS.MyDrone,     3)
-createToggle("Газели",     "Gazel",       COLORS.Gazel,       4)
-createToggle("Лидерборды", "Leaderboard", COLORS.Leaderboard, 5)
+createToggle("Игроки",         "Player",      COLORS.Player,      1)
+createToggle("Шахеды",         "Drone",       COLORS.Drone,       2)
+createToggle("Мой Шахед",      "MyDrone",     COLORS.MyDrone,     3)
+createToggle("Газели",         "Gazel",       COLORS.Gazel,       4)
+createToggle("Лидерборды",     "Leaderboard", COLORS.Leaderboard, 5)
+createToggle("Дист. шахедов",  "drone_dist",  COLORS.DroneDist,   6)
 
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Name = "BenHubToggle"
@@ -523,6 +557,8 @@ task.spawn(function()
                 end
             end
         end
+        -- Сканируем Шахедов для дистанции (независимо от чамсов)
+        scanDroneDistances()
         if tick() % 10 < 3 then rescanAll() end
     end
 end)
@@ -536,3 +572,4 @@ end)
 
 task.wait(1)
 rescanAll()
+scanDroneDistances()
